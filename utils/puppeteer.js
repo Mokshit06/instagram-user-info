@@ -13,7 +13,7 @@ const getData = async username => {
     visible: true,
   });
 
-  const data = await page.evaluate(() => {
+  const data = await page.evaluate(async username => {
     const profile_image = (
       document.querySelector('._6q-tv') || document.querySelector('.be6sR')
     ).src;
@@ -25,21 +25,30 @@ const getData = async username => {
       document.querySelector('.yLUwa').textContent;
     const followers = document.querySelectorAll('.g47SY')[1].textContent;
     const following = document.querySelectorAll('.g47SY')[2].textContent;
+    const posts = document.querySelectorAll('.v1Nh3.kIKUG._bz0w a');
+    const postImages = [...posts].map(post => ({
+      link: post.href,
+      image: post.firstElementChild.firstElementChild.firstElementChild.src,
+    }));
+    const isPrivate = document.querySelector('._4Kbb_._54f4m') ? true : false;
 
     return {
       name,
+      username,
       profile_image,
       bio,
       bio_html,
       followers,
       following,
       website,
+      isPrivate,
+      posts: postImages,
     };
-  });
+  }, username);
 
   await browser.close();
 
-  return { username, ...data };
+  return data;
 };
 
 module.exports = getData;

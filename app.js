@@ -1,4 +1,4 @@
-const { ApolloServer, gql } = require('apollo-server');
+const { ApolloServer, ApolloError, gql } = require('apollo-server');
 const getData = require('./utils/puppeteer');
 
 const typeDefs = gql`
@@ -10,7 +10,14 @@ const typeDefs = gql`
     website: String!
     profile_image: String!
     followers: Int!
+    isPrivate: Boolean!
     following: Int!
+    posts: [Post!]
+  }
+
+  type Post {
+    link: String!
+    image: String!
   }
 
   type Query {
@@ -20,8 +27,8 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    async user(_, a) {
-      const data = await getData(a.username);
+    async user(_parent, { username }) {
+      const data = await getData(username);
       return data;
     },
   },
